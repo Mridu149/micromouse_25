@@ -1,0 +1,3 @@
+[submodule "mms"]
+	path = mms
+	url = git@github.com:neo-0007/mms.git
