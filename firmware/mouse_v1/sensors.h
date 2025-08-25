@@ -10,8 +10,15 @@ class IRSensor
 {
 public:
   void init()
-  {
-    Wire.begin();
+{
+    Wire.begin(21, 22);
+    delay(10);
+    
+    Wire.setClock(100000);  
+
+    sensor1.setBus(&Wire);
+    sensor2.setBus(&Wire);   
+    sensor3.setBus(&Wire);   
 
     pinMode(IR_XSHUT_1, OUTPUT);
     pinMode(IR_XSHUT_2, OUTPUT);
@@ -40,7 +47,8 @@ public:
     sensor1.startContinuous();
     sensor2.startContinuous();
     sensor3.startContinuous();
-  }
+}
+
 
   uint16_t getFrontSensorReading()
   {
@@ -52,7 +60,7 @@ public:
     return sensor2.readRangeContinuousMillimeters();
   }
 
-  uint16_t getThirdSensorReading()
+  uint16_t getLeftSensorReading()
   {
     return sensor3.readRangeContinuousMillimeters();
   }
