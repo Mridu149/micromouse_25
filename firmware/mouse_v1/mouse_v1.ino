@@ -1,0 +1,14 @@
+
+
+// SETUP CODE WILL GO HERE
+// WILL RUN ONCE ON POWER
+void setup(){
+  
+}
+
+
+// LOOP CODE WILL GO HERE
+// WILL RUN CONTINIOSLY
+void loop(){
+  
+}
