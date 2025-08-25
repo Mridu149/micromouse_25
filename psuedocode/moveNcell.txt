@@ -1,0 +1,27 @@
+void moveOnecell(){
+	
+	encoders.resetValuesToZero(); // Should start the counts from zero
+	motion.move(speed); // start movement (SPEED should be also calculated exprimentally)
+	wait_till_finished(); // fxn that runs till desired value is achieved
+	motorsStop(); // after reaching goal motors stop
+	
+	// Succesfully moved 1 cell
+}
+
+void wait_till_finished(int n){
+	// WE NEED TO CALCULATE THIS ONE_CELL_COUNT experientally
+	
+	while( encoder.curCount != ONE_CELL_COUNT){
+		delay(1ms); // deay should match with systick so the while loop checks constantly after each update
+	}
+	
+	return; // when the encoder count reaches our desired value the above loop breaks and the fxn ends
+}
+
+//RUNS EVERY 1ms or some constant time(very frequent)
+void systick(){
+	encoders.update(); //update encoders value associated with the global encoder object
+	motion.update(); // update the current motor sppeds and all (global motorL,motorR objects)
+}
+
+
