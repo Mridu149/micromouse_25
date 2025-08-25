@@ -15,7 +15,7 @@ public:
 
     pinMode(IR_XSHUT_1, OUTPUT);
     pinMode(IR_XSHUT_2, OUTPUT);
-    pinMode(IR_XSHUT_1, OUTPUT);
+    pinMode(IR_XSHUT_3, OUTPUT);
 
     digitalWrite(IR_XSHUT_1, LOW);
     digitalWrite(IR_XSHUT_2, LOW);
@@ -42,12 +42,12 @@ public:
     sensor3.startContinuous();
   }
 
-  uint16_t getFirstSensorReading()
+  uint16_t getFrontSensorReading()
   {
     return sensor1.readRangeContinuousMillimeters();
   }
 
-  uint16_t getSecondSensorReading()
+  uint16_t getRightSensorReading()
   {
     return sensor2.readRangeContinuousMillimeters();
   }
@@ -58,9 +58,9 @@ public:
   }
 
 private:
-  VL53L0X sensor1;
-  VL53L0X sensor2;
-  VL53L0X sensor3;
+  VL53L0X sensor1; // RIGHT SENSOR OBJECT
+  VL53L0X sensor2; // RIGHT SENSOR OBJECT
+  VL53L0X sensor3; // LEFT SENSOR OBJECT
 };
 
 #endif

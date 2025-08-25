@@ -3,14 +3,15 @@
 #define MOTOR_RIGHT_IN1 27
 #define MOTOR_RIGHT_IN2 14
 
- #define MOTOR_FREQUENCY 50000
+#define MOTOR_FREQUENCY 50000
 #define MOTOR_RESOLUTION 8
 
-  #define ENCODER_LEFT_CHA 33
+
+#define ENCODER_LEFT_CHA 33
 #define ENCODER_LEFT_CHB 32
 #define ENCODER_RIGHT_CHA 35
 #define ENCODER_RIGHT_CHB 34
 
- #define IR_XSHUT_1 15
-#define IR_XSHUT_2 4
-#define IR_XSHUT_3 5
+#define IR_XSHUT_1 15
+#define IR_XSHUT_2 5
+#define IR_XSHUT_3 4
