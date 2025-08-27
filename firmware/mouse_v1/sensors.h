@@ -10,7 +10,7 @@ class IRSensor
 {
 public:
   void init()
-{
+  {
     Wire.begin(21, 22);
     delay(10);
     
@@ -44,29 +44,29 @@ public:
     sensor3.init();
     sensor3.setAddress(0x32);
 
-    sensor1.startContinuous();
-    sensor2.startContinuous();
-    sensor3.startContinuous();
-}
-
+    sensor1.setMeasurementTimingBudget(20000);
+    sensor2.setMeasurementTimingBudget(20000);
+    sensor3.setMeasurementTimingBudget(20000);
+  }
 
   uint16_t getFrontSensorReading()
   {
-    return sensor1.readRangeContinuousMillimeters();
+    return sensor1.readRangeSingleMillimeters();
   }
 
   uint16_t getRightSensorReading()
   {
-    return sensor2.readRangeContinuousMillimeters();
+    return sensor2.readRangeSingleMillimeters();
   }
 
   uint16_t getLeftSensorReading()
   {
-    return sensor3.readRangeContinuousMillimeters();
+    return sensor3.readRangeSingleMillimeters();
   }
 
+
 private:
-  VL53L0X sensor1; // RIGHT SENSOR OBJECT
+  VL53L0X sensor1; // FRONT SENSOR OBJECT
   VL53L0X sensor2; // RIGHT SENSOR OBJECT
   VL53L0X sensor3; // LEFT SENSOR OBJECT
 };

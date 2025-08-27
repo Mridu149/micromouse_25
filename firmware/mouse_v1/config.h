@@ -1,3 +1,6 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
 #define MOTOR_LEFT_IN1 25
 #define MOTOR_LEFT_IN2 26
 #define MOTOR_RIGHT_IN1 27
@@ -15,3 +18,15 @@
 #define IR_XSHUT_1 16
 #define IR_XSHUT_2 5
 #define IR_XSHUT_3 4
+
+#define TICKS_PER_CELL 1700
+#define TICKS_90_DEGREES 1400
+
+#define KP_BAL 0.048
+#define KP_DIST 0.002
+
+
+#define FRONT_WALL_THRESHOLD 85
+#define SIDE_WALL_THRESHOLD 100
+
+#endif
