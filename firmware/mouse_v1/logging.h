@@ -1,3 +1,7 @@
+#ifndef LOGGING_H
+#define LOGGING_H
+
+
 #define BLUETOOTH_DEBUGGING
 //#define WIFI_DEBUGGING
 
@@ -50,3 +54,6 @@ void initLogging() {
   initWebServer();
 #endif
 }
+
+
+#endif
