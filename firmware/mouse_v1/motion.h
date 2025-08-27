@@ -5,63 +5,84 @@
 #include "motors.h"
 #include "encoders.h"
 #include "config.h"  
+// #include "logging.h"
 
-int minPWM = 60;  
-int maxPWM = 95; 
+const long ticks = 2869;   // Target encoder ticks to travel
+
+// Distance PID (only loop now)
+float Kp_bal = 0.34;   // tune this (start small)
+float kp_dist = 0.002;
+// float Ki_dist = 0.0;
+// float Kd_dist = 0.01;
+
+// Motor duty cycle settings (0–100)
+int minPWM = 70;   // below this, motor stalls
+int maxPWM = 95;  // max duty cycle
+
+// ===============================================
+
+long startTicksL = 0;
+long startTicksR = 0;
 
 extern Motor motorL, motorR;
 extern Encoder encoders;
 
-void moveNcells(int n) {
-  encoders.resetValuesToZero();
-  
-  long startTicksL = 0;
-  long startTicksR = 0;
+// PID variables
+// long prevErrorDist = 0;
+// float distIntegral = 0;
 
-  long err_bal = 0;
-  long err_dist = 0;
-  int baseSpeed = 80;
+long err_bal=0;
+long err_dist=0;
+int baseSpeed = 80;
 
-  int leftPwm  = baseSpeed;
-  int rightPwm = baseSpeed;
-  long avgticks = 0;
+int leftPwm  = baseSpeed;
+int rightPwm = baseSpeed;
+long avgticks = 0;
 
-  int p_err_dist = 0;
+int p_err_bal = 0;
+int p_err_dist = 0;
 
+void moveOneCell(){
+  p_err_bal = 0;
+  p_err_dist = 0;
+  delay(10);
+
+  // Record start positions
   startTicksL = encoders.currentLeftCount();
   startTicksR = encoders.currentRightCount();
 
-//  Serial.print("Start Left : ");
-//  Serial.println(startTicksL);
-//  Serial.print("Start Right: ");
-//  Serial.println(startTicksR);
+  Serial.print("Start Left : ");
+  Serial.println(startTicksL);
+  Serial.print("Start Right: ");
+  Serial.println(startTicksR);
 
-  motorL.move(baseSpeed); 
+  // Start moving
+  motorL.move(baseSpeed);  // temp speed until PID takes over
   motorR.move(baseSpeed);
-
-  long targetTicks = n * TICKS_PER_CELL;
 
   while (true) {
     long leftTicks  = encoders.currentLeftCount() - startTicksL;
     long rightTicks = encoders.currentRightCount() - startTicksR;
 
     err_bal = leftTicks - rightTicks;
-    avgticks = (leftTicks + rightTicks) / 2;
-    err_dist = targetTicks - avgticks;
-    p_err_dist = KP_DIST * err_dist;
+    avgticks = (leftTicks+rightTicks)/2;
+    err_dist = ticks - avgticks;
+    p_err_dist = kp_dist*err_dist;
 
-    if (err_bal > 0) {
-      rightPwm = baseSpeed + p_err_dist + err_bal * KP_BAL;
-      leftPwm  = baseSpeed + p_err_dist - err_bal * KP_BAL;
-    }
-    else if (err_bal < 0) {
-      rightPwm = baseSpeed + p_err_dist - abs(err_bal * KP_BAL);
-      leftPwm  = baseSpeed + p_err_dist + abs(err_bal * KP_BAL);
-    }
-    else {
-      rightPwm = baseSpeed;
-      leftPwm  = baseSpeed;
-    }
+
+    rightPwm = baseSpeed + p_err_dist + err_bal*Kp_bal;
+    leftPwm =  baseSpeed + p_err_dist - err_bal*Kp_bal;
+    // if(err_bal > 0){
+    //   rightPwm = baseSpeed + p_err_dist + err_bal*Kp_bal;
+    //   leftPwm =  baseSpeed + p_err_dist - err_bal*Kp_bal;
+    // }
+    // else if(err_bal < 0){
+    //   rightPwm = baseSpeed + p_err_dist - abs(err_bal*Kp_bal);
+    //   leftPwm = baseSpeed + p_err_dist + abs(err_bal*Kp_bal);
+    // }else{
+    //   rightPwm = baseSpeed;
+    //   leftPwm = baseSpeed;
+    // }
 
     // Deadband handling
     if (leftPwm < minPWM && leftPwm > 0) leftPwm = minPWM;
@@ -75,22 +96,23 @@ void moveNcells(int n) {
     motorR.move(rightPwm);
 
     // Debug print
-//    Serial.print("L: ");
-//    Serial.print(leftTicks);
-//    Serial.print("  R: ");
-//    Serial.print(rightTicks);
-//    Serial.print("  Left PWM: ");
-//    Serial.print(leftPwm);
-//    Serial.print("  Right PWM: ");
-//    Serial.print(rightPwm);
-//    Serial.print("  Err Heading: ");
-//    Serial.print(err_bal);
-//    Serial.print("  Err Dist: ");
-//    Serial.println(err_dist);
+    Serial.print("L: ");
+    Serial.print(leftTicks);
+    Serial.print("  R: ");
+    Serial.print(rightTicks);
+    Serial.print("  Left PWM: ");
+    Serial.print(leftPwm);
+    Serial.print("  Right PWM: ");
+    Serial.print(rightPwm);
+    Serial.print("  Err Heading: ");
+    Serial.print(err_bal);
+    Serial.print("  Err Dist: ");
+    Serial.println(err_dist);
 
-    if (avgticks >= targetTicks) {
-      motorL.stop();
-      motorR.stop();
+    // ---- Stop condition ----
+    if (avgticks >= ticks) { // average reached target
+      motorL.brake();
+      motorR.brake();
       break;
     }
 
@@ -98,110 +120,70 @@ void moveNcells(int n) {
   }
 
   // Done
-//  Serial.print("Final Left : ");
-//  Serial.println(encoders.currentLeftCount());
-//  Serial.print("Final Right: ");
-//  Serial.println(encoders.currentRightCount());
+  Serial.print("Final Left : ");
+  Serial.println(encoders.currentLeftCount());
+  Serial.print("Final Right: ");
+  Serial.println(encoders.currentRightCount());
 
-  encoders.resetValuesToZero();
+  // delay(2000);
+  // encoders.resetValuesToZero();
 }
 
-void turnRight90IP() {
+void turnLeft90PID() {
   encoders.resetValuesToZero();
+  Serial.println("============ TURNING LEFT with PID =======");
 
   int baseSpeed = 80;
-  long startTicksL = encoders.currentLeftCount();
-  long startTicksR = encoders.currentRightCount();
-
   long targetTicks = TICKS_90_DEGREES;
-  
-  int leftPwm = baseSpeed;
-  int rightPwm = baseSpeed;
 
-  motorL.move(baseSpeed);   // left forward
-  motorR.move(-baseSpeed);  // right backward
+  long startL = encoders.currentLeftCount();
+  long startR = encoders.currentRightCount();
+
+  // PID gains (tune these)
+  float Kp_rot = 0.003;   // distance to target
+  float Kp_bal = 0.3;     // balance left vs right
 
   while (true) {
-    long leftTicks  = encoders.currentLeftCount() - startTicksL;
-    long rightTicks = encoders.currentRightCount() - startTicksR;
+    long leftTicks  = encoders.currentLeftCount() - startL;
+    long rightTicks = encoders.currentRightCount() - startR;
 
-    long avgTicks = (abs(leftTicks) + abs(rightTicks)) / 2;
-    
-    long err_turn = targetTicks - avgTicks;
-    int p_err_turn = KP_DIST * err_turn;
-    
-    // Calculate PWM values with P control
-    leftPwm = baseSpeed + p_err_turn;
-    rightPwm = baseSpeed + p_err_turn;
-    
-    if (leftPwm < minPWM && leftPwm > 0) leftPwm = minPWM;
-    if (rightPwm < minPWM && rightPwm > 0) rightPwm = minPWM;
-    
-    leftPwm = constrain(leftPwm, 0, maxPWM);
-    rightPwm = constrain(rightPwm, 0, maxPWM);
-    
-    motorL.move(leftPwm);    // left forward
-    motorR.move(-rightPwm);  // right backward
+    long rotation = (abs(leftTicks) + abs(rightTicks)) / 2;
+    long err_rot  = targetTicks - rotation;              // progress error
+    long err_bal  = abs(leftTicks) - abs(rightTicks);    // balance error
 
-    // Stop condition
-    if (avgTicks >= targetTicks) {
-      motorL.stop();
-      motorR.stop();
+    if (err_rot <= 0) {
+      motorL.brake();
+      motorR.brake();
       break;
     }
-    
-    delay(10); // small update delay
-  }
 
-  encoders.resetValuesToZero();
-}
+    // PID proportional terms
+    int p_err_rot = (int)(Kp_rot * err_rot);
+    int p_err_bal = (int)(Kp_bal * err_bal);
 
-void turnLeft90IP(){
-  encoders.resetValuesToZero();
+    // Compute PWM outputs
+    int leftPWM  = -(baseSpeed + p_err_rot - p_err_bal); // negative = backward
+    int rightPWM =  (baseSpeed + p_err_rot + p_err_bal); // positive = forward
 
-  int baseSpeed = 80;
-  long startTicksL = encoders.currentLeftCount();
-  long startTicksR = encoders.currentRightCount();
-
-  long targetTicks = TICKS_90_DEGREES;
-  
-  int leftPwm = baseSpeed;
-  int rightPwm = baseSpeed;
-
-  motorL.move(-baseSpeed);  // left backward
-  motorR.move(baseSpeed);   // right forward
-
-  while (true) {
-    long leftTicks  = encoders.currentLeftCount() - startTicksL;
-    long rightTicks = encoders.currentRightCount() - startTicksR;
-
-    long avgTicks = (abs(leftTicks) + abs(rightTicks)) / 2;
-    
-    // P control for turn distance
-    long err_turn = targetTicks - avgTicks;
-    int p_err_turn = KP_DIST * err_turn;
-    
-    // Calculate PWM values with P control
-    leftPwm = baseSpeed + p_err_turn;
-    rightPwm = baseSpeed + p_err_turn;
-    
     // Deadband handling
-    if (leftPwm < minPWM && leftPwm > 0) leftPwm = minPWM;
-    if (rightPwm < minPWM && rightPwm > 0) rightPwm = minPWM;
-    
-    // Clamp to valid range
-    leftPwm = constrain(leftPwm, 0, maxPWM);
-    rightPwm = constrain(rightPwm, 0, maxPWM);
-    
-    motorL.move(-leftPwm);   // left backward
-    motorR.move(rightPwm);   // right forward
+    if (abs(leftPWM) < minPWM)  leftPWM  = (leftPWM < 0) ? -minPWM : minPWM;
+    if (abs(rightPWM) < minPWM) rightPWM = (rightPWM < 0) ? -minPWM : minPWM;
 
-    // Stop condition
-    if (avgTicks >= targetTicks) {
-      motorL.stop();
-      motorR.stop();
-      break;
-    }
+    // Clamp
+    leftPWM  = constrain(leftPWM, -maxPWM, maxPWM);
+    rightPWM = constrain(rightPWM, -maxPWM, maxPWM);
+
+    // Drive motors
+    motorL.move(leftPWM);
+    motorR.move(rightPWM);
+
+    // Debug
+    Serial.print("L: "); Serial.print(leftTicks);
+    Serial.print(" R: "); Serial.print(rightTicks);
+    Serial.print(" RotErr: "); Serial.print(err_rot);
+    Serial.print(" BalErr: "); Serial.print(err_bal);
+    Serial.print(" Lpwm: "); Serial.print(leftPWM);
+    Serial.print(" Rpwm: "); Serial.println(rightPWM);
 
     delay(10);
   }
@@ -209,9 +191,66 @@ void turnLeft90IP(){
   encoders.resetValuesToZero();
 }
 
-void turn180IP(){
-  turnRight90IP();
-  turnRight90IP();
+
+void turnRight90PID() {
+  encoders.resetValuesToZero();
+  Serial.println("============ TURNING RIGHT with PID =======");
+
+  int baseSpeed = 80;
+  long targetTicks = TICKS_90_DEGREES;
+
+  long startL = encoders.currentLeftCount();
+  long startR = encoders.currentRightCount();
+
+  float Kp_rot = 0.003;
+  float Kp_bal = 0.3;
+
+  while (true) {
+    long leftTicks  = encoders.currentLeftCount() - startL;
+    long rightTicks = encoders.currentRightCount() - startR;
+
+    long rotation = (abs(leftTicks) + abs(rightTicks)) / 2;
+    long err_rot  = targetTicks - rotation;
+    long err_bal  = abs(leftTicks) - abs(rightTicks);
+
+    if (err_rot <= 0) {
+      motorL.brake();
+      motorR.brake();
+      break;
+    }
+
+    int p_err_rot = (int)(Kp_rot * err_rot);
+    int p_err_bal = (int)(Kp_bal * err_bal);
+
+    int leftPWM  =  (baseSpeed + p_err_rot - p_err_bal); // left forward
+    int rightPWM = -(baseSpeed + p_err_rot + p_err_bal); // right backward
+
+    if (abs(leftPWM) < minPWM)  leftPWM  = (leftPWM < 0) ? -minPWM : minPWM;
+    if (abs(rightPWM) < minPWM) rightPWM = (rightPWM < 0) ? -minPWM : minPWM;
+
+    leftPWM  = constrain(leftPWM, -maxPWM, maxPWM);
+    rightPWM = constrain(rightPWM, -maxPWM, maxPWM);
+
+    motorL.move(leftPWM);
+    motorR.move(rightPWM);
+
+    Serial.print("L: "); Serial.print(leftTicks);
+    Serial.print(" R: "); Serial.print(rightTicks);
+    Serial.print(" RotErr: "); Serial.print(err_rot);
+    Serial.print(" BalErr: "); Serial.print(err_bal);
+    Serial.print(" Lpwm: "); Serial.print(leftPWM);
+    Serial.print(" Rpwm: "); Serial.println(rightPWM);
+
+    delay(10);
+  }
+
+  encoders.resetValuesToZero();
+}
+
+
+void turn180PID(){
+  turnLeft90PID();
+  turnLeft90PID();
 }
 
 #endif
