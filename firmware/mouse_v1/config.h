@@ -20,7 +20,9 @@
 #define IR_XSHUT_3 4
 
 #define TICKS_PER_CELL 1700
-#define TICKS_90_DEGREES 885
+#define TICKS_90_DEGREES_LEFT 870
+#define TICKS_90_DEGREES_RIGHT 840
+#define TICKS_180_DEGREES 1850
 
 // #define KP_BAL 0.34
 // #define KP_DIST 0.002
@@ -28,5 +30,9 @@
 
 #define FRONT_WALL_THRESHOLD 85
 #define SIDE_WALL_THRESHOLD 100
+
+#define FRONT_ERROR 11
+#define LEFT_ERROR  18
+#define RIGHT_ERROR 19
 
 #endif
