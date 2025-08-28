@@ -134,7 +134,7 @@ void turnLeft90PID() {
   Serial.println("============ TURNING LEFT with PID =======");
 
   int baseSpeed = 80;
-  long targetTicks = TICKS_90_DEGREES;
+  long targetTicks = TICKS_90_DEGREES_LEFT;
 
   long startL = encoders.currentLeftCount();
   long startR = encoders.currentRightCount();
@@ -197,7 +197,7 @@ void turnRight90PID() {
   Serial.println("============ TURNING RIGHT with PID =======");
 
   int baseSpeed = 80;
-  long targetTicks = TICKS_90_DEGREES;
+  long targetTicks = TICKS_90_DEGREES_RIGHT;
 
   long startL = encoders.currentLeftCount();
   long startR = encoders.currentRightCount();
@@ -248,9 +248,59 @@ void turnRight90PID() {
 }
 
 
-void turn180PID(){
-  turnLeft90PID();
-  turnLeft90PID();
+void turn180PID() {
+  encoders.resetValuesToZero();
+  Serial.println("============ TURNING 180 with PID =======");
+
+  int baseSpeed = 80;
+  long targetTicks = TICKS_180_DEGREES;
+
+  long startL = encoders.currentLeftCount();
+  long startR = encoders.currentRightCount();
+
+  float Kp_rot = 0.003;
+  float Kp_bal = 0.3;
+
+  while (true) {
+    long leftTicks  = encoders.currentLeftCount() - startL;
+    long rightTicks = encoders.currentRightCount() - startR;
+
+    long rotation = (abs(leftTicks) + abs(rightTicks)) / 2;
+    long err_rot  = targetTicks - rotation;
+    long err_bal  = abs(leftTicks) - abs(rightTicks);
+
+    if (err_rot <= 0) {
+      motorL.brake();
+      motorR.brake();
+      break;
+    }
+
+    int p_err_rot = (int)(Kp_rot * err_rot);
+    int p_err_bal = (int)(Kp_bal * err_bal);
+
+    int leftPWM  =  (baseSpeed + p_err_rot - p_err_bal); // left forward
+    int rightPWM = -(baseSpeed + p_err_rot + p_err_bal); // right backward
+
+    if (abs(leftPWM) < minPWM)  leftPWM  = (leftPWM < 0) ? -minPWM : minPWM;
+    if (abs(rightPWM) < minPWM) rightPWM = (rightPWM < 0) ? -minPWM : minPWM;
+
+    leftPWM  = constrain(leftPWM, -maxPWM, maxPWM);
+    rightPWM = constrain(rightPWM, -maxPWM, maxPWM);
+
+    motorL.move(leftPWM);
+    motorR.move(rightPWM);
+
+    Serial.print("L: "); Serial.print(leftTicks);
+    Serial.print(" R: "); Serial.print(rightTicks);
+    Serial.print(" RotErr: "); Serial.print(err_rot);
+    Serial.print(" BalErr: "); Serial.print(err_bal);
+    Serial.print(" Lpwm: "); Serial.print(leftPWM);
+    Serial.print(" Rpwm: "); Serial.println(rightPWM);
+
+    delay(10);
+  }
+
+  encoders.resetValuesToZero();
 }
 
 #endif
