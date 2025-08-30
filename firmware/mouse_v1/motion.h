@@ -7,7 +7,7 @@
 #include "config.h"  
 // #include "logging.h"
 
-const long ticks = 2869;   // Target encoder ticks to travel
+const long ticks = 3100;   // Target encoder ticks to travel
 
 // Distance PID (only loop now)
 float Kp_bal = 0.34;   // tune this (start small)
