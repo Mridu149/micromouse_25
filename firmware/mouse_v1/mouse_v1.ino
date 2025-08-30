@@ -11,6 +11,11 @@ IRSensor sensors;
 
 // Maze parameters
 Cell **maze;
+
+Motor motorL, motorR;
+//Encoder encoders;
+//IRSensor sensors;
+
 bool mazeComplete = false;
 
 // Robot state
@@ -109,3 +114,120 @@ void loop() {
 
     delay(50); // small delay to allow sensors/motors to stabilize
 }
+  // Initialize encoders
+//  encoders.init();
+//  sensors.init();
+
+  // Stop motors at start
+ // motorL.stop();
+ // motorR.stop();
+//
+//  initBluetooth();
+
+//  encoders.resetValuesToZero();
+}
+//
+//void loop() {
+ // motorL.move(90);
+//  motorR.move(90);
+//  moveOneCell();
+//  delay(2000);
+//  turnRight90PID();
+//  
+//  delay(5000);
+//  moveOneCell();
+//  delay(2000);
+//  turnLeft90PID();
+//  
+//  delay(5000);
+//  
+//  moveOneCell();
+//  delay(2000);
+//  turn180PID();
+//
+//   delay(6000);
+//   if(!mazeComplete){
+//    moveOneCell();
+//    SerialBT.print("FRONT WALL : ");
+//    SerialBT.println(isWallAtFront());
+//    SerialBT.print("LEFT WALL : ");
+//    SerialBT.println(isWallAtLeft());
+//    SerialBT.print("RIGHT WALL : ");
+//    SerialBT.println(isWallAtRight());
+//     delay(1000);
+//     turnLeft90PID();
+//    SerialBT.print("FRONT WALL : ");
+//    SerialBT.println(isWallAtFront());
+//    SerialBT.print("LEFT WALL : ");
+//    SerialBT.println(isWallAtLeft());
+//    SerialBT.print("RIGHT WALL : ");
+//    SerialBT.println(isWallAtRight());
+//     delay(1000);
+//     moveOneCell();
+//    SerialBT.print("FRONT WALL : ");
+//    SerialBT.println(isWallAtFront());
+//    SerialBT.print("LEFT WALL : ");
+//    SerialBT.println(isWallAtLeft());
+//    SerialBT.print("RIGHT WALL : ");
+//    SerialBT.println(isWallAtRight());
+//     delay(1000);
+//     turnRight90PID();
+//    SerialBT.print("FRONT WALL : ");
+//    SerialBT.println(isWallAtFront());
+//    SerialBT.print("LEFT WALL : ");
+//    SerialBT.println(isWallAtLeft());
+//    SerialBT.print("RIGHT WALL : ");
+//    SerialBT.println(isWallAtRight());
+//     delay(1000);
+//    moveOneCell();
+//    SerialBT.print("FRONT WALL : ");
+//    SerialBT.println(isWallAtFront());
+//    SerialBT.print("LEFT WALL : ");
+//    SerialBT.println(isWallAtLeft());
+//    SerialBT.print("RIGHT WALL : ");
+//    SerialBT.println(isWallAtRight());
+//     delay(1000);
+//     turnLeft90PID();
+//    SerialBT.print("FRONT WALL : ");
+//    SerialBT.println(isWallAtFront());
+//    SerialBT.print("LEFT WALL : ");
+//    SerialBT.println(isWallAtLeft());
+//    SerialBT.print("RIGHT WALL : ");
+//    SerialBT.println(isWallAtRight());
+//     delay(1000);
+//     moveOneCell();
+//    SerialBT.print("FRONT WALL : ");
+//    SerialBT.println(isWallAtFront());
+//    SerialBT.print("LEFT WALL : ");
+//    SerialBT.println(isWallAtLeft());
+//    SerialBT.print("RIGHT WALL : ");
+//    SerialBT.println(isWallAtRight());
+//     delay(1000);
+//     moveOneCell();
+//    SerialBT.print("FRONT WALL : ");
+//    SerialBT.println(isWallAtFront());
+//    SerialBT.print("LEFT WALL : ");
+//    SerialBT.println(isWallAtLeft());
+//    SerialBT.print("RIGHT WALL : ");
+//    SerialBT.println(isWallAtRight());
+//     delay(1000);
+//     turnRight90PID();
+//    SerialBT.print("FRONT WALL : ");
+//    SerialBT.println(isWallAtFront());
+//    SerialBT.print("LEFT WALL : ");
+//    SerialBT.println(isWallAtLeft());
+//    SerialBT.print("RIGHT WALL : ");
+//    SerialBT.println(isWallAtRight());
+//     delay(1000);
+//     moveOneCell();
+//    SerialBT.print("FRONT WALL : ");
+//    SerialBT.println(isWallAtFront());
+//    SerialBT.print("LEFT WALL : ");
+//    SerialBT.println(isWallAtLeft());
+//    SerialBT.print("RIGHT WALL : ");
+//    SerialBT.println(isWallAtRight());
+//     delay(1000);
+//}
+//mazeComplete = false;
+//}
+//

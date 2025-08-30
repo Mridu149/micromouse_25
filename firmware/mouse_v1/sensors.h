@@ -51,24 +51,24 @@ public:
 
   uint16_t getFrontSensorReading()
   {
-    return sensor1.readRangeSingleMillimeters();
+    return (sensor1.readRangeSingleMillimeters() - FRONT_ERROR);
   }
 
   uint16_t getRightSensorReading()
   {
-    return sensor2.readRangeSingleMillimeters();
+    return (sensor3.readRangeSingleMillimeters() - RIGHT_ERROR);
   }
 
   uint16_t getLeftSensorReading()
   {
-    return sensor3.readRangeSingleMillimeters();
+    return (sensor2.readRangeSingleMillimeters() - LEFT_ERROR);
   }
 
 
 private:
   VL53L0X sensor1; // FRONT SENSOR OBJECT
-  VL53L0X sensor2; // RIGHT SENSOR OBJECT
-  VL53L0X sensor3; // LEFT SENSOR OBJECT
+  VL53L0X sensor2; // LEFT SENSOR OBJECT
+  VL53L0X sensor3; // RIGHT SENSOR OBJECT
 };
 
 #endif
